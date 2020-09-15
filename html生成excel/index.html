@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title></title>
+</head>
+<body>
+	<div>
+		<button onclick="exportTable('table', '导出')">导出1</button>
+		<button onclick="exportTable2('成绩.xls')">导出2</button>
+		<table id="table">
+			<tr>
+				<td>序号</td>
+				<td>姓名</td>
+				<td>性别</td>
+				<td>年龄</td>
+				<td>成绩</td>
+			</tr>
+			<tr>
+				<td>1</td>
+				<td>张三</td>
+				<td>男</td>
+				<td>20</td>
+				<td>99</td>
+			</tr>
+		</table>
+	</div>
+</body>
+<script type="text/javascript" src="xlsx.full.min.js"></script>
+<script type="text/javascript">
+	/*原生js直接导出*/
+	function exportTable(id, fileName){
+		var uri = 'data:application/vnd.ms-excel;base64,', 
+	    fileName = fileName || 'excelexport',
+	    template = '<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40"><head><meta name="renderer" charset="utf-8" content="webkit"><!--[if gte mso 9]><xml><x:ExcelWorkbook><x:ExcelWorksheets><x:ExcelWorksheet><x:Name>{worksheet}</x:Name><x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions></x:ExcelWorksheet></x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]--></head><body><table>{table}</table></body></html>'; 
+
+		base64 = function(s) { return window.btoa(unescape(encodeURIComponent(s))) },
+		format = function(s, c) {
+		    return s.replace(/{(\w+)}/g, function(m, p) { return c[p]; }) 
+		}
+		var ctx = {worksheet: name || 'Worksheet', table: document.getElementById(id).innerHTML};
+		
+		var a = document.createElement('a'); 
+		document.body.appendChild(a); 
+		a.hreflang = 'zh'; 
+		a.charset = 'utf8'; 
+		a.type="application/vnd.ms-excel"; 
+		
+		let blob = new Blob([format(template, ctx)]);
+		a.href = URL.createObjectURL(blob);//解决由于数据量太大导致chrome导出出现网络错误（由于url长度限制）
+		//a.href = uri + Base64.encode(format(template,ctx)); 
+		a.target = '_blank'; 
+		a.download = fileName + '.xls';
+		a.tableBorder = 1;
+		a.click();
+	}
+
+	/*可生成多个工作表*/
+	function exportTable2(fileName){
+		var wb = XLSX.utils.book_new();
+		var data = new Array();
+		data[0] = ['序号', '姓名', '性别', '年龄', '成绩', null, null];
+		data[1] = [null, null, null, null, '语文', '数学', '英语'];
+		//合并单元格
+		var mergeCell = [
+			{s: {r: 0, c: 0}, e: {r: 1, c: 0}},
+			{s: {r: 0, c: 1}, e: {r: 1, c: 1}},
+			{s: {r: 0, c: 2}, e: {r: 1, c: 2}},
+			{s: {r: 0, c: 3}, e: {r: 1, c: 3}},
+			{s: {r: 0, c: 4}, e: {r: 0, c: 6}}
+		];
+		data[2] = ['1', '张三', '男', '18','90', '90', '90'];
+		//工作表名
+		var ws_name = '成绩单';
+		//將數組數據轉化為sheet
+		var ws = XLSX.utils.aoa_to_sheet(data);
+		//单元格合并处理
+		ws['!merges'] = mergeCell;
+		//添加工作表(可创建多个)
+		XLSX.utils.book_append_sheet(wb, ws, ws_name);
+		XLSX.utils.book_append_sheet(wb, ws, '成绩单2');
+		//导出excel
+		XLSX.writeFile(wb, fileName);
+	}
+	
+</script>
+</html>

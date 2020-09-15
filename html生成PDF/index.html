@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title></title>
+</head>
+<body>
+	<div id="content">需要下载的内容</div>
+	<button onclick="makeMpdf('pdf', 'content')">下载PDF</button>
+</body>
+<script type="text/javascript" src="js/jspdf.debug.js"></script>
+<script type="text/javascript" src="js/html2canvas.js"></script>
+<script>
+	function makeMpdf(pdfName,elementId) {
+		if (confirm("您确认下载该PDF文件吗?")) {
+			//var target = document.getElementsByClassName("right-aside")[0];
+			var target = document.getElementById(elementId);
+			target.style.background = "#FFFFFF";
+			if (pdfName == '' || pdfName == undefined) pdfName = "content";
+			html2canvas(target, {
+				onrendered: function (canvas) {
+					var contentWidth = canvas.width;
+					var contentHeight = canvas.height;
+					//一页pdf显示html页面生成的canvas高度;
+					var pageHeight = contentWidth / 592.28 * 841.89;
+					//未生成pdf的html页面高度
+					var leftHeight = contentHeight;
+					//页面偏移
+					var position = 0;
+					//a4纸的尺寸[595.28,841.89]，html页面生成的canvas在pdf中图片的宽高
+					var imgWidth = 595.28;
+					var imgHeight = 592.28 / contentWidth * contentHeight;
+					var pageData = canvas.toDataURL('image/jpeg', 1.0);
+					var pdf = new jsPDF('', 'pt', 'a4');
+					//有两个高度需要区分，一个是html页面的实际高度，和生成pdf的页面高度(841.89)
+					//当内容未超过pdf一页显示的范围，无需分页
+					if (leftHeight < pageHeight) {
+						pdf.addImage(pageData, 'JPEG', 0, 0, imgWidth, imgHeight);
+					} 
+					else {
+						while (leftHeight > 0) {
+							pdf.addImage(pageData, 'JPEG', 0, position, imgWidth, imgHeight)
+							leftHeight -= pageHeight;
+							position -= 841.89;
+							//避免添加空白页
+							if (leftHeight > 0) {
+								pdf.addPage();
+							}
+						}
+					}
+					pdf.save(pdfName + ".pdf");
+				}
+			})
+		}
+	}
+	/*不分页：
+	let target = document.getElementById(elementId);
+	let width = target.offsetWidth / 4
+	let height = target.offsetHeight / 4
+	let _this = this
+	// eslint-disable-next-line
+	target.style.background = "#FFFFFF";
+	//只针对页面窗口显示出来的部分进行导出，设置了overflow:hidden部分被截掉，可修改样式来调整内容
+	$('.cl-table tr th').css({
+		'white-space': 'inherit',
+		'min-width': 'inherit',
+		'overflow': 'visible'
+	});
+	$('.cl-table tr td').css({
+		'white-space': 'inherit',
+		'min-width': 'inherit',
+		'overflow': 'visible'
+	});
+	html2canvas(target, {
+		onrendered: function (canvas) {
+			let context = canvas.getContext('2d')
+			context.mozImageSmoothingEnabled = false
+			context.webkitImageSmoothingEnabled = false
+			context.msImageSmoothingEnabled = false
+			context.imageSmoothingEnabled = false
+			let pageData = canvas.toDataURL('image/jpeg', 1.0)
+			let img = new Image()
+			img.src = pageData
+			img.onload = function () {
+				// 获取dom高度、宽度
+				img.width = img.width / 2
+				img.height = img.height / 2
+				img.style.transform = 'scale(0.5)'
+				if (width > height) {
+					// 此可以根据打印的大小进行自动调节
+					// eslint-disable-next-line
+					var pdf = new jsPDF('l', 'mm', [
+						width * 0.505,
+						height * 0.545
+					])
+				} else {
+					// eslint-disable-next-line
+					var pdf = new jsPDF('p', 'mm', [
+						width * 0.505,
+						height * 0.545
+					])
+				}
+				pdf.addImage(
+					pageData,
+					'jpeg',
+					0,
+					0,
+					width * 0.505,
+					height * 0.545
+					)
+				pdf.save(_this.boardNameTitle + '.pdf');
+				$('.cl-table tr th').css({
+					'white-space': 'nowrap',
+					'min-width': '80px',
+					'overflow': 'hidden'
+				});
+				$('.cl-table tr td').css({
+					'white-space': 'nowrap',
+					'min-width': '80px',
+					'overflow': 'hidden'
+				});
+			}
+		},
+	});*/
+</script>
+</html>

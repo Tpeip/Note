@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>轮播</title>
+	<style type="text/css">
+		#con{
+			position: relative;
+			max-height: 200px;
+			overflow: hidden;
+		}
+		ul{
+			position: relative;
+		}
+		ul li {
+			list-style: none;
+			height: 32px;
+			line-height: 32px;
+			width: 200px;
+			text-align: center;
+		}
+	</style>
+</head>
+<body>
+	<div id="con">
+		<ul>
+			<li>我是滚动内容1</li>
+			<li>我是滚动内容2</li>
+			<li>我是滚动内容3</li>
+			<li>我是滚动内容4</li>
+			<li>我是滚动内容5</li>
+			<li>我是滚动内容6</li>
+			<li>我是滚动内容7</li>
+			<li>我是滚动内容8</li>
+			<li>我是滚动内容9</li>
+			<li>我是滚动内容10</li>
+			<li>我是滚动内容11</li>
+			<li>我是滚动内容12</li>
+		</ul>
+	</div>
+</body>
+<script type="text/javascript" src="jquery-1.12.1.js"></script>
+<script type="text/javascript" src="LbMove.js"></script>
+<script>
+	//滚动元素id，左切换按钮，右切换按钮，切换元素个数id,滚动方式，切换方向，是否自动滚动，滚动距离，滚动时间，滚动间隔，显示个数
+	LbMove('con', '', '', '',true, 'top', true, 32, 1000, 3000, 1);	
+</script>
+</html>
